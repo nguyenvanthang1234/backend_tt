@@ -23,7 +23,7 @@ const authMiddleWare = (req, res, next) => {
       req.user = user;
       next();
     } else {
-      return res.status(403).json({
+      return res.status(404).json({
         message: "You do not have the necessary permissions",
         status: "ERROR",
       });

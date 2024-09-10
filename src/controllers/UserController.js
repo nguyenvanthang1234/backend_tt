@@ -1,4 +1,5 @@
 const UserService = require("../services/UserService");
+const JwtService = require("../services/jwtService");
 
 const createUser = async (req, res) => {
   try {
@@ -140,9 +141,30 @@ const getDetailsUser = async (req, res) => {
     });
   }
 };
+
+const logoutUser = async (req, res) => {
+  try {
+    const cookieOptions = {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+    };
+    res.clearCookie("refresh_token", cookieOptions);
+    return res.status(200).json({
+      status: "OK",
+      message: "Logout successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "ERROR",
+      message: "Logout failed",
+    });
+  }
+};
+
 const refreshToken = async (req, res) => {
   try {
-    let token = req.headers.token.split(" ")[1];
+    let token = req.headers.token?.split(" ")[1];
     if (!token) {
       return res.status(200).json({
         status: "ERR",
@@ -157,7 +179,6 @@ const refreshToken = async (req, res) => {
     });
   }
 };
-
 module.exports = {
   createUser,
   loginUser,
@@ -166,4 +187,5 @@ module.exports = {
   getAllUser,
   getDetailsUser,
   refreshToken,
+  logoutUser,
 };
