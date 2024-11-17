@@ -4,37 +4,29 @@ dotenv.config();
 
 const authMiddleWare = (req, res, next) => {
   const token = req.headers.token?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({
-      message: "Authentication token is missing",
-      status: "ERROR",
-    });
-  }
-
-  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, user) {
     if (err) {
-      return res.status(401).json({
-        message: "Invalid authentication token",
+      return res.status(404).json({
+        message: "The authentication",
         status: "ERROR",
       });
     }
-
     if (user?.isAdmin) {
-      req.user = user;
       next();
     } else {
       return res.status(404).json({
-        message: "You do not have the necessary permissions",
+        message: "The authentication",
         status: "ERROR",
       });
     }
   });
 };
 
+//  cho phép truy cập ví dụ như vào trang chi tiết người dùng
 const authUserMiddleWare = (req, res, next) => {
   const token = req.headers.token?.split(" ")[1];
   const userId = req.params.id;
-  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, user) {
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, user) {
     if (err) {
       return res.status(404).json({
         message: "The authentication",
