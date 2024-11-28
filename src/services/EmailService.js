@@ -9,8 +9,8 @@ const sendEmailCreateOrder = async (email, orderItems) => {
     port: 465,
     secure: true,
     auth: {
-      user: process.env.MAIL_ACCOUNT, // generated ethereal user
-      pass: process.env.MAIL_PASSWORD, // generated ethereal password
+      user: process.env.MAIL_ACCOUNT,
+      pass: process.env.MAIL_PASSWORD,
     },
   });
   transporter.use("compile", inlineBase64({ cidPrefix: "somePrefix_" }));
@@ -26,12 +26,11 @@ const sendEmailCreateOrder = async (email, orderItems) => {
     attachImage.push({ path: order.image });
   });
 
-  // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: process.env.MAIL_ACCOUNT, // sender address
-    to: email, // list of receivers
-    subject: "Bạn đã đặt hàng tại shop ", // Subject line
-    text: "Hello world?", // plain text body
+    from: process.env.MAIL_ACCOUNT,
+    to: email,
+    subject: "Bạn đã đặt hàng tại shop ",
+    text: "Hello world?",
     html: `<div><b>Bạn đã đặt hàng thành công tại shop </b></div> ${listItem}`,
     attachments: attachImage,
   });
