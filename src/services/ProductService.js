@@ -10,7 +10,7 @@ const createProduct = (newProduct) => {
       price,
       rating,
       description,
-      // discount,
+      discount,
     } = newProduct;
 
     try {
@@ -31,7 +31,7 @@ const createProduct = (newProduct) => {
         price,
         rating,
         description,
-        // discount: Number(discount),
+        discount: Number(discount),
       });
       if (newProduct) {
         resolve({
@@ -142,11 +142,15 @@ const getAllProduct = (limit, page, sort, filter) => {
       let query = Product.find();
 
       if (filter && filter.length === 2) {
+        // label :trường cần lọc và value là giá trị cần lọc
+        // sử dụng $regex để tìm kiếm không phân biệt chữ hoa và thường
         const [label, value] = filter;
         query = query.find({ [label]: { $regex: value, $options: "i" } });
       }
 
       if (sort && sort.length === 2) {
+        // order thứ tự sắp xếp
+        // field trường cần sắp xếp
         const [order, field] = sort;
         query = query.sort({ [field]: order });
       }
@@ -157,6 +161,7 @@ const getAllProduct = (limit, page, sort, filter) => {
 
       query = query.sort({ createdAt: -1, updatedAt: -1 });
 
+      // thực hiện query và lấy kết quả
       const allProduct = await query.exec();
 
       resolve({
@@ -176,6 +181,7 @@ const getAllProduct = (limit, page, sort, filter) => {
     }
   });
 };
+
 const getAllType = () => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -190,7 +196,6 @@ const getAllType = () => {
     }
   });
 };
-
 module.exports = {
   createProduct,
   updateProduct,

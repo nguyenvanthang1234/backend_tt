@@ -5,29 +5,19 @@ const { genneralAccessToken, genneralRefreshToken } = require("./jwtService");
 const createUser = (newUser) => {
   return new Promise(async (resolve, reject) => {
     const { name, email, password, confirmPassword, phone } = newUser;
-    checkUser = await User.findOne({
-      email: email,
-    });
-    if (checkUser !== null) {
-      resolve({
-        status: "OK",
-        message: "the email is already",
-      });
-    }
-    const hash = bcrypt.hashSync(password, 10);
-
     try {
-      const createUser = await User.create({
+      const hash = bcrypt.hashSync(password, 10);
+      const createdUser = await User.create({
         name,
         email,
         password: hash,
         phone,
       });
-      if (createUser) {
+      if (createdUser) {
         resolve({
-          status: "Ok",
-          message: "SUCESS",
-          data: createUser,
+          status: "OK",
+          message: "SUCCESS",
+          data: createdUser,
         });
       }
     } catch (e) {
@@ -91,7 +81,7 @@ const updateUser = (id, data) => {
           message: "The user is not defined",
         });
       }
-
+      // new =true là trả luôn ra dữ liệu update mới
       const updatedUser = await User.findByIdAndUpdate(id, data, { new: true });
       resolve({
         status: "OK",
@@ -117,6 +107,19 @@ const deleteUser = (id) => {
       }
 
       await User.findByIdAndDelete(id);
+      resolve({
+        status: "OK",
+        message: "Delete user success",
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+const deleteManyUser = (ids) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await User.deleteMany({ _id: ids });
       resolve({
         status: "OK",
         message: "Delete user success",
@@ -172,4 +175,5 @@ module.exports = {
   deleteUser,
   getDetailsUser,
   getAllUser,
+  deleteManyUser,
 };

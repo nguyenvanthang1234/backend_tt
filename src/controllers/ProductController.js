@@ -5,7 +5,7 @@ const createProduct = async (req, res) => {
   try {
     const { name, image, type, countInStock, price, rating, description, discount } = req.body;
     if (!name || !image || !type || !countInStock || !price || !rating || !discount || !description) {
-      return res.status(200).json({
+      return res.status(400).json({
         status: "ERR",
         message: "The input is required",
       });
@@ -18,13 +18,12 @@ const createProduct = async (req, res) => {
     });
   }
 };
-
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     const data = req.body;
     if (!productId) {
-      return res.status(200).json({
+      return res.status(400).json({
         status: "ERR",
         message: "The productId is required",
       });
@@ -42,7 +41,7 @@ const getDetailsProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     if (!productId) {
-      return res.status(200).json({
+      return res.status(400).json({
         status: "ERR",
         message: "The productId is required",
       });
@@ -60,7 +59,7 @@ const deleteProduct = async (req, res) => {
   try {
     const productId = req.params.id;
     if (!productId) {
-      return res.status(200).json({
+      return res.status(400).json({
         status: "ERR",
         message: "The productId is required",
       });
@@ -78,7 +77,7 @@ const deleteMany = async (req, res) => {
   try {
     const ids = req.body.ids;
     if (!ids) {
-      return res.status(200).json({
+      return res.status(400).json({
         status: "ERR",
         message: "The ids is required",
       });
@@ -94,7 +93,7 @@ const deleteMany = async (req, res) => {
 
 const getAllProduct = async (req, res) => {
   try {
-    const limit = Math.max(Number(req.query.limit) || 10, 1);
+    const limit = Math.max(Number(req.query.limit) || 100, 1);
     const page = Math.max(Number(req.query.page) || 0, 0);
     const { sort, filter } = req.query;
 
