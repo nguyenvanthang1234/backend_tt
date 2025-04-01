@@ -40,6 +40,7 @@ const getAllOrderDetails = async (req, res) => {
 const getDetailsOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
+
     if (!orderId) {
       return res.status(200).json({
         status: "ERR",
@@ -69,7 +70,6 @@ const cancelOrderDetails = async (req, res) => {
     const response = await OrderService.cancelOrderDetails(orderId, data);
     return res.status(200).json(response);
   } catch (e) {
-    // console.log(e)
     return res.status(404).json({
       message: e,
     });

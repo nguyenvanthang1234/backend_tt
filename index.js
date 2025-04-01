@@ -20,7 +20,7 @@ routes(app);
 
 mongoose
   .connect(
-    "mongodb+srv://vanthangthophu1234:YxfNM6IMwLgUtY9g@cluster0.lsloi.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://vanthangthophu1234:fr6862FacGf1sspT@cluster0.idi47sd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
   )
   .then(() => {
     console.log("Connect Db success!");

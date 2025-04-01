@@ -194,65 +194,130 @@ const getOrderDetails = (id) => {
 //   });
 // };
 
+// const cancelOrderDetails = (id, data) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       let deletedOrder = null;
+
+//       const results = await Promise.all(
+//         data.map(async (item) => {
+//           const productData = await Product.findOneAndUpdate(
+//             {
+//               _id: item.product,
+//               selled: { $gte: item.amount },
+//             },
+//             {
+//               $inc: {
+//                 countInStock: +item.amount,
+//                 selled: -item.amount,
+//               },
+//             },
+//             { new: true }
+//           );
+
+//           if (!productData) {
+//             return {
+//               status: "ERR",
+//               message: `Sản phẩm với id: ${item.product} không tồn tại hoặc không đủ điều kiện.`,
+//               id: item.product,
+//             };
+//           }
+
+//           return { status: "OK" };
+//         })
+//       );
+//       // Kiểm tra xem có sản phẩm nào  bị lỗi không
+//       const errors = results.filter((result) => result.status === "ERR");
+//       if (errors.length > 0) {
+//         return resolve({
+//           status: "ERR",
+//           message: errors.map((err) => err.message).join(", "),
+//         });
+//       }
+
+//       deletedOrder = await Order.findByIdAndDelete(id);
+//       if (!deletedOrder) {
+//         return resolve({
+//           status: "ERR",
+//           message: "Không tìm thấy đơn hàng cần hủy.",
+//         });
+//       }
+
+//       resolve({
+//         status: "OK",
+//         message: "Đơn hàng đã được hủy thành công.",
+//         data: deletedOrder,
+//       });
+//     } catch (error) {
+//       reject({
+//         status: "ERR",
+//         message: "Có lỗi xảy ra trong quá trình xử lý.",
+//         error: error.message,
+//       });
+//     }
+//   });
+// };
+
 const cancelOrderDetails = (id, data) => {
   return new Promise(async (resolve, reject) => {
     try {
-      let deletedOrder = null;
-
-      const results = await Promise.all(
-        data.map(async (item) => {
-          const productData = await Product.findOneAndUpdate(
-            {
-              _id: item.product,
-              selled: { $gte: item.amount },
+      let order = null;
+      const promises = data.map(async (orderItem) => {
+        const productData = await Product.findOneAndUpdate(
+          {
+            _id: orderItem.product,
+            selled: { $gte: orderItem.amount },
+          },
+          {
+            $inc: {
+              countInStock: +orderItem.amount,
+              selled: -orderItem.amount,
             },
-            {
-              $inc: {
-                countInStock: +item.amount,
-                selled: -item.amount,
-              },
-            },
-            { new: true }
-          );
+          },
+          { new: true }
+        );
+        if (!productData) {
+          // Nếu không tìm thấy sản phẩm
+          return {
+            status: "ERR",
+            message: `Product with id ${orderItem.product} not found`,
+          };
+        }
+        // Sau khi cập nhật sản phẩm, xóa đơn hàng
+        order = await Order.findByIdAndDelete(id);
+        if (!order) {
+          // Nếu không tìm thấy đơn hàng
+          return {
+            status: "ERR",
+            message: "The order is not defined",
+          };
+        }
+        return {
+          status: "OK",
+          message: "Order cancelled successfully",
+        };
+      });
 
-          if (!productData) {
-            return {
-              status: "ERR",
-              message: `Sản phẩm với id: ${item.product} không tồn tại hoặc không đủ điều kiện.`,
-              id: item.product,
-            };
-          }
+      const results = await Promise.all(promises);
 
-          return { status: "OK" };
-        })
-      );
-      // Kiểm tra xem có sản phẩm nào  bị lỗi không
-      const errors = results.filter((result) => result.status === "ERR");
-      if (errors.length > 0) {
-        return resolve({
-          status: "ERR",
-          message: errors.map((err) => err.message).join(", "),
-        });
+      // Kiểm tra kết quả của các promise
+      const errorResult = results.find((result) => result.status === "ERR");
+      if (errorResult) {
+        // Nếu có lỗi trong bất kỳ promise nào
+        return resolve(errorResult);
       }
 
-      deletedOrder = await Order.findByIdAndDelete(id);
-      if (!deletedOrder) {
-        return resolve({
-          status: "ERR",
-          message: "Không tìm thấy đơn hàng cần hủy.",
-        });
-      }
-
+      // Nếu tất cả thành công, trả về kết quả
       resolve({
         status: "OK",
-        message: "Đơn hàng đã được hủy thành công.",
-        data: deletedOrder,
+        message: "Order cancelled successfully",
+        data: order,
       });
-    } catch (error) {
+    } catch (e) {
       reject({
         status: "ERR",
-        message: "Có lỗi xảy ra trong quá trình xử lý.",
-        error: error.message,
+        message: "An unexpected error occurred",
+        error: e,
       });
     }
   });
